@@ -9,7 +9,7 @@ using SampleWebApi.Models;
 
 namespace SampleWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -20,7 +20,6 @@ namespace SampleWebApi.Controllers
             _context = context;
         }
 
-        // GET: api/User
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
@@ -28,7 +27,7 @@ namespace SampleWebApi.Controllers
         }
 
         // GET: api/User/5
-        [HttpGet("{id}")]
+        [HttpGet("user")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -43,7 +42,7 @@ namespace SampleWebApi.Controllers
 
         // PUT: api/User/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("user/{id}")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
             if (id != user.Id)
@@ -72,6 +71,25 @@ namespace SampleWebApi.Controllers
             return NoContent();
         }
 
+        [HttpGet("user/{id}/message")]
+        public async Task<ActionResult<Object>> GetUsers(int id)
+        {
+            var query = from user in _context.Users
+                        join notification in _context.Notifications
+                            on user.Id equals notification.UserId
+                        select new {
+                            user.Name,
+                            notification.Message
+                        };
+
+            if (query.Count() == 0)
+            {
+                return NoContent();
+            }
+                        
+            return await query.FirstAsync();
+        }
+
         // POST: api/User
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -84,7 +102,7 @@ namespace SampleWebApi.Controllers
         }
 
         // DELETE: api/User/5
-        [HttpDelete("{id}")]
+        [HttpDelete("user/{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
